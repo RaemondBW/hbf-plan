@@ -156,9 +156,14 @@ html, body {
   flex-shrink: 0;
 }
 
+.sidebar-logo-img {
+  height: 28px;
+  width: auto;
+}
+
 .sidebar-logo {
   font-family: "Archivo Black", "Archivo", sans-serif;
-  font-size: 1rem;
+  font-size: 0.7rem;
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -432,8 +437,9 @@ input[type="range"]::-webkit-slider-thumb {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 20px;
-  padding-bottom: 20px;
+  padding: 16px 18px;
+  border-top: var(--card-border);
+  flex-shrink: 0;
 }
 
 .export-btn {
@@ -549,14 +555,18 @@ input[type="range"]::-webkit-slider-thumb {
   box-shadow: 6px 6px 0 rgba(255, 255, 255, 0.3);
 }
 
-.upload-icon {
-  font-size: 56px;
-  margin-bottom: 12px;
+.upload-logo {
+  max-width: 220px;
+  height: auto;
+  margin-bottom: 16px;
+  background: #000;
+  border-radius: 12px;
+  padding: 16px;
 }
 
-.upload-card h1 {
+.upload-subtitle {
   font-family: "Archivo Black", "Archivo", sans-serif;
-  font-size: 2.25rem;
+  font-size: 1.5rem;
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -1195,8 +1205,12 @@ input[type="range"]::-webkit-slider-thumb {
     margin: 16px;
   }
 
-  .upload-card h1 {
-    font-size: 1.75rem;
+  .upload-logo {
+    max-width: 160px;
+  }
+
+  .upload-subtitle {
+    font-size: 1.25rem;
   }
 
   .toolbar {
