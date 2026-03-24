@@ -1,0 +1,1256 @@
+/* ============================================
+   Feed Planner — HBF-Inspired Bold Theme
+   Archivo Black headings, vibrant colors,
+   neo-brutalist borders & drop shadows
+   ============================================ */
+
+:root {
+  --hbf-yellow: #FFCC37;
+  --hbf-cyan: #2DC5E7;
+  --hbf-magenta: #EC008C;
+  --hbf-purple: #643695;
+  --hbf-lime: #5AFF24;
+  --hbf-black: #000000;
+  --hbf-white: #FFFFFF;
+
+  --accent-primary: var(--hbf-yellow);
+  --accent-secondary: var(--hbf-cyan);
+  --accent-tertiary: var(--hbf-magenta);
+  --accent-green: var(--hbf-lime);
+  --accent-red: #FF3B30;
+
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F5F5F5;
+  --bg-tertiary: #E8E8E8;
+  --text-primary: #000000;
+  --text-secondary: #444444;
+  --text-tertiary: #888888;
+  --map-overlay-bg: rgba(255, 255, 255, 0.92);
+  --map-overlay-text: #000000;
+  --panel-bg: #FFFFFF;
+  --panel-border: #000000;
+  --card-bg: #FFFFFF;
+  --card-shadow: 3px 3px 0 #000000;
+  --card-border: 2px solid #000000;
+  --drink-color: var(--hbf-cyan);
+  --food-color: var(--hbf-yellow);
+  --btn-shadow: 3px 3px 0 #000000;
+  --btn-shadow-hover: 1px 1px 0 #000000;
+  --border-width: 2px;
+  --radius-pill: 9999px;
+  --radius-card: 8px;
+
+  --sidebar-width: 320px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #0A0A0A;
+    --bg-secondary: #1A1A1A;
+    --bg-tertiary: #2A2A2A;
+    --text-primary: #FFFFFF;
+    --text-secondary: #BBBBBB;
+    --text-tertiary: #777777;
+    --map-overlay-bg: rgba(10, 10, 10, 0.92);
+    --map-overlay-text: #FFFFFF;
+    --panel-bg: #1A1A1A;
+    --panel-border: #FFFFFF;
+    --card-bg: #1A1A1A;
+    --card-shadow: 3px 3px 0 rgba(255, 255, 255, 0.3);
+    --card-border: 2px solid rgba(255, 255, 255, 0.6);
+    --btn-shadow: 3px 3px 0 rgba(255, 255, 255, 0.3);
+    --btn-shadow-hover: 1px 1px 0 rgba(255, 255, 255, 0.3);
+  }
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0A0A0A;
+  --bg-secondary: #1A1A1A;
+  --bg-tertiary: #2A2A2A;
+  --text-primary: #FFFFFF;
+  --text-secondary: #BBBBBB;
+  --text-tertiary: #777777;
+  --map-overlay-bg: rgba(10, 10, 10, 0.92);
+  --map-overlay-text: #FFFFFF;
+  --panel-bg: #1A1A1A;
+  --panel-border: #FFFFFF;
+  --card-bg: #1A1A1A;
+  --card-shadow: 3px 3px 0 rgba(255, 255, 255, 0.3);
+  --card-border: 2px solid rgba(255, 255, 255, 0.6);
+  --btn-shadow: 3px 3px 0 rgba(255, 255, 255, 0.3);
+  --btn-shadow-hover: 1px 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="light"] {
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F5F5F5;
+  --bg-tertiary: #E8E8E8;
+  --text-primary: #000000;
+  --text-secondary: #444444;
+  --text-tertiary: #888888;
+  --map-overlay-bg: rgba(255, 255, 255, 0.92);
+  --map-overlay-text: #000000;
+  --panel-bg: #FFFFFF;
+  --panel-border: #000000;
+  --card-bg: #FFFFFF;
+  --card-shadow: 3px 3px 0 #000000;
+  --card-border: 2px solid #000000;
+  --btn-shadow: 3px 3px 0 #000000;
+  --btn-shadow-hover: 1px 1px 0 #000000;
+}
+
+/* ============================================
+   Reset & Base
+   ============================================ */
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: "Archivo", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================
+   App Layout — Sidebar + Map
+   ============================================ */
+
+.app-layout {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+/* ============================================
+   Sidebar (always visible)
+   ============================================ */
+
+.sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  height: 100%;
+  background: var(--panel-bg);
+  border-right: 3px solid var(--panel-border);
+  display: flex;
+  flex-direction: column;
+  z-index: 1200;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: var(--hbf-yellow);
+  border-bottom: 3px solid var(--panel-border);
+  flex-shrink: 0;
+}
+
+.sidebar-logo {
+  font-family: "Archivo Black", "Archivo", sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--hbf-black);
+}
+
+.theme-toggle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--hbf-black);
+  background: var(--hbf-white);
+  box-shadow: 2px 2px 0 var(--hbf-black);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--hbf-black);
+}
+
+.sidebar-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 18px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sidebar-body h3 {
+  font-family: "Archivo Black", "Archivo", sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--hbf-magenta);
+  margin: 20px 0 10px;
+  padding-bottom: 5px;
+  border-bottom: 2px solid var(--hbf-magenta);
+}
+
+.sidebar-body h3:first-child {
+  margin-top: 0;
+}
+
+/* ============================================
+   Route Info (in sidebar)
+   ============================================ */
+
+.route-info-section {
+  padding: 10px 12px;
+  background: var(--bg-secondary);
+  border: var(--border-width) solid var(--panel-border);
+  border-radius: var(--radius-card);
+  margin-bottom: 14px;
+  box-shadow: var(--card-shadow);
+}
+
+.route-info-section.hidden {
+  display: none;
+}
+
+.route-info-name {
+  font-family: "Archivo Black", "Archivo", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.route-info-stats {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.route-info-stats .divider {
+  color: var(--hbf-magenta);
+  font-weight: 900;
+}
+
+/* ============================================
+   Setting Groups
+   ============================================ */
+
+.setting-group {
+  margin-bottom: 14px;
+}
+
+.setting-group > label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-row input[type="number"] {
+  flex: 1;
+  padding: 8px 10px;
+  border: var(--border-width) solid var(--panel-border);
+  border-radius: var(--radius-card);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: "Archivo", sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  -moz-appearance: textfield;
+  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.input-row input[type="number"]:focus {
+  outline: none;
+  border-color: var(--hbf-cyan);
+  box-shadow: 0 0 0 2px rgba(45, 197, 231, 0.3);
+}
+
+.input-row input[type="number"]::-webkit-inner-spin-button,
+.input-row input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.input-row .unit {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  min-width: 30px;
+}
+
+input[type="range"] {
+  width: 100%;
+  margin-top: 8px;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-tertiary);
+  outline: none;
+  border: 1px solid var(--panel-border);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--hbf-cyan);
+  border: 2px solid var(--hbf-black);
+  box-shadow: 2px 2px 0 var(--hbf-black);
+  cursor: pointer;
+}
+
+/* ============================================
+   Strategy / Device Buttons
+   ============================================ */
+
+.strategy-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.strategy-btn,
+.device-btn {
+  padding: 7px 10px;
+  border: var(--border-width) solid var(--panel-border);
+  border-radius: var(--radius-pill);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-family: "Archivo", sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  white-space: nowrap;
+  box-shadow: 2px 2px 0 var(--panel-border);
+  text-align: center;
+}
+
+.strategy-btn:hover,
+.device-btn:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--panel-border);
+}
+
+.strategy-btn.active {
+  background: var(--hbf-cyan);
+  color: var(--hbf-black);
+  border-color: var(--hbf-black);
+  box-shadow: 2px 2px 0 var(--hbf-black);
+}
+
+.device-btn.active {
+  background: var(--hbf-magenta);
+  color: var(--hbf-white);
+  border-color: var(--hbf-black);
+  box-shadow: 2px 2px 0 var(--hbf-black);
+}
+
+/* ============================================
+   Nutrition Summary
+   ============================================ */
+
+.nutrition-summary {
+  margin-top: 4px;
+}
+
+.nutrition-summary.hidden {
+  display: none;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.summary-item {
+  padding: 8px 10px;
+  background: var(--bg-secondary);
+  border: var(--border-width) solid var(--panel-border);
+  border-radius: var(--radius-card);
+  text-align: center;
+}
+
+.summary-value {
+  display: block;
+  font-family: "Archivo Black", "Archivo", sans-serif;
+  font-size: 1.125rem;
+  font-weight: 400;
+  color: var(--hbf-cyan);
+}
+
+.summary-label {
+  display: block;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+/* ============================================
+   Sidebar Action Buttons
+   ============================================ */
+
+.sidebar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 20px;
+  padding-bottom: 20px;
+}
+
+.export-btn {
+  width: 100%;
+  padding: 12px;
+  border: 3px solid var(--hbf-black);
+  border-radius: var(--radius-pill);
+  background: var(--hbf-yellow);
+  color: var(--hbf-black);
+  font-family: "Archivo Black", "Archivo", sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--hbf-black);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.export-btn:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--hbf-black);
+}
+
+.export-btn:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+
+.new-route-btn {
+  width: 100%;
+  padding: 10px;
+  border: var(--border-width) solid var(--panel-border);
+  border-radius: var(--radius-pill);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: "Archivo", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: var(--btn-shadow);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.new-route-btn:hover {
+  transform: translate(1px, 1px);
+  box-shadow: var(--btn-shadow-hover);
+}
+
+/* ============================================
+   Map Area
+   ============================================ */
+
+.map-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+#map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* ============================================
+   Upload Overlay
+   ============================================ */
+
+.upload-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  transition: opacity 0.3s ease;
+}
+
+.upload-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.upload-card {
+  text-align: center;
+  padding: 48px;
+  max-width: 480px;
+  background: var(--card-bg);
+  border: 3px solid var(--panel-border);
+  border-radius: var(--radius-card);
+  box-shadow: 6px 6px 0 var(--panel-border);
+}
+
+[data-theme="dark"] .upload-card {
+  box-shadow: 6px 6px 0 rgba(255, 255, 255, 0.3);
+}
+
+.upload-icon {
+  font-size: 56px;
+  margin-bottom: 12px;
+}
+
+.upload-card h1 {
+  font-family: "Archivo Black", "Archivo", sans-serif;
+  font-size: 2.25rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  line-height: 0.9;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.upload-card p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 28px;
+}
+
+.upload-btn {
+  display: inline-block;
+  padding: 14px 40px;
+  background: var(--hbf-cyan);
+  color: var(--hbf-black);
+  border: var(--border-width) solid var(--hbf-black);
+  border-radius: var(--radius-pill);
+  font-family: "Archivo", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: var(--btn-shadow);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.upload-btn:hover {
+  transform: translate(1px, 1px);
+  box-shadow: var(--btn-shadow-hover);
+}
+
+.upload-btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+.upload-hint {
+  font-size: 0.8125rem !important;
+  color: var(--text-tertiary) !important;
+  margin-top: 16px !important;
+  margin-bottom: 20px !important;
+}
+
+.drop-zone {
+  border: 3px dashed var(--text-tertiary);
+  border-radius: var(--radius-card);
+  padding: 36px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.drop-zone.drag-over {
+  border-color: var(--hbf-cyan);
+  background: rgba(45, 197, 231, 0.1);
+}
+
+.drop-zone p {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================
+   Map Toolbar (over map)
+   ============================================ */
+
+.toolbar {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: opacity 0.3s ease;
+}
+
+.toolbar.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tool-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-card);
+  border: var(--border-width) solid var(--panel-border);
+  background: var(--card-bg);
+  box-shadow: var(--btn-shadow);
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.tool-btn:hover {
+  transform: translate(1px, 1px);
+  box-shadow: var(--btn-shadow-hover);
+}
+
+.tool-btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+.tool-btn.active {
+  background: var(--hbf-magenta);
+  color: white;
+  border-color: var(--hbf-black);
+}
+
+/* ============================================
+   Feed Summary Bar (bottom of map)
+   ============================================ */
+
+.feed-summary {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background: var(--panel-bg);
+  border-top: 3px solid var(--panel-border);
+  padding: 12px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.feed-summary.hidden {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.feed-summary-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.feed-summary-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.feed-card {
+  flex-shrink: 0;
+  min-width: 110px;
+  padding: 8px 12px;
+  border-radius: var(--radius-card);
+  background: var(--card-bg);
+  border: var(--card-border);
+  box-shadow: var(--card-shadow);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  border-left: 4px solid var(--drink-color);
+}
+
+.feed-card:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--panel-border);
+}
+
+.feed-card.food {
+  border-left-color: var(--food-color);
+}
+
+.feed-card-km {
+  font-family: "Archivo Black", "Archivo", sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--text-primary);
+}
+
+.feed-card-type {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.feed-card-type.drink {
+  color: var(--drink-color);
+}
+
+.feed-card-type.food {
+  color: var(--food-color);
+}
+
+.feed-card-note {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.feed-card-carbs {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+/* ============================================
+   Map Markers
+   ============================================ */
+
+.feed-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
+  border: 3px solid var(--hbf-black);
+  font-size: 12px;
+  cursor: grab;
+  transition: transform 0.1s ease;
+}
+
+.feed-marker:hover {
+  transform: scale(1.2);
+}
+
+.feed-marker.drink {
+  background: var(--hbf-cyan);
+  width: 30px;
+  height: 30px;
+}
+
+.feed-marker.food {
+  background: var(--hbf-yellow);
+  width: 30px;
+  height: 30px;
+}
+
+.feed-marker-label {
+  background: var(--card-bg);
+  border: 2px solid var(--panel-border);
+  color: var(--text-primary);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-family: "Archivo", sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  box-shadow: 2px 2px 0 var(--panel-border);
+  white-space: nowrap;
+  text-align: center;
+}
+
+.start-marker {
+  width: 22px;
+  height: 22px;
+  background: var(--hbf-lime);
+  border: 3px solid var(--hbf-black);
+  border-radius: 50%;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+.end-marker {
+  width: 22px;
+  height: 22px;
+  background: var(--hbf-magenta);
+  border: 3px solid var(--hbf-black);
+  border-radius: 50%;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================
+   Leaflet Popup Override
+   ============================================ */
+
+.leaflet-popup-content-wrapper {
+  border-radius: var(--radius-card) !important;
+  background: var(--card-bg) !important;
+  border: var(--border-width) solid var(--panel-border) !important;
+  box-shadow: 4px 4px 0 var(--panel-border) !important;
+  color: var(--text-primary) !important;
+}
+
+.leaflet-popup-tip {
+  background: var(--card-bg) !important;
+  border: var(--border-width) solid var(--panel-border) !important;
+  box-shadow: 2px 2px 0 var(--panel-border) !important;
+}
+
+.leaflet-popup-content {
+  margin: 14px 16px !important;
+  font-family: "Archivo", sans-serif !important;
+  font-size: 0.875rem !important;
+}
+
+.popup-title {
+  font-family: "Archivo Black", "Archivo", sans-serif;
+  font-weight: 400;
+  font-size: 0.9375rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 10px;
+}
+
+.popup-type-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.popup-type-btn {
+  flex: 1;
+  padding: 7px;
+  border: var(--border-width) solid var(--panel-border);
+  border-radius: var(--radius-pill);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-family: "Archivo", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.popup-type-btn.active {
+  border-color: var(--hbf-cyan);
+  color: var(--hbf-black);
+  background: var(--hbf-cyan);
+}
+
+.popup-row {
+  margin-bottom: 10px;
+}
+
+.popup-row label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  margin-bottom: 5px;
+}
+
+.popup-row input[type="text"] {
+  width: 100%;
+  padding: 8px 10px;
+  border: var(--border-width) solid var(--panel-border);
+  border-radius: var(--radius-card);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: "Archivo", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.popup-row input[type="text"]:focus {
+  outline: none;
+  border-color: var(--hbf-cyan);
+}
+
+.popup-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.popup-delete {
+  flex: 1;
+  padding: 8px;
+  border: var(--border-width) solid var(--accent-red);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--accent-red);
+  font-family: "Archivo", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.popup-delete:hover {
+  background: var(--accent-red);
+  color: white;
+}
+
+.popup-save {
+  flex: 1;
+  padding: 8px;
+  border: var(--border-width) solid var(--hbf-black);
+  border-radius: var(--radius-pill);
+  background: var(--hbf-cyan);
+  color: var(--hbf-black);
+  font-family: "Archivo", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--hbf-black);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.popup-save:hover {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--hbf-black);
+}
+
+/* ============================================
+   Mobile Export Bar
+   ============================================ */
+
+.mobile-export-bar {
+  display: none;
+}
+
+/* ============================================
+   Mobile Sidebar Toggle
+   ============================================ */
+
+.mobile-sidebar-toggle {
+  display: none;
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 1100;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-card);
+  border: var(--border-width) solid var(--panel-border);
+  background: var(--hbf-yellow);
+  box-shadow: var(--btn-shadow);
+  color: var(--hbf-black);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.mobile-sidebar-toggle:hover {
+  transform: translate(1px, 1px);
+  box-shadow: var(--btn-shadow-hover);
+}
+
+.mobile-backdrop {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1150;
+}
+
+.mobile-backdrop.visible {
+  display: block;
+}
+
+/* ============================================
+   Email Capture Modal
+   ============================================ */
+
+.email-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+}
+
+.email-modal.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.email-modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.email-modal-card {
+  position: relative;
+  z-index: 1;
+  background: var(--card-bg);
+  border: 3px solid var(--panel-border);
+  border-radius: var(--radius-card);
+  box-shadow: 6px 6px 0 var(--panel-border);
+  padding: 36px 32px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+}
+
+.email-modal-card h2 {
+  font-family: "Archivo Black", "Archivo", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.email-modal-card p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.email-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.email-form input[type="email"] {
+  padding: 12px 14px;
+  border: var(--border-width) solid var(--panel-border);
+  border-radius: var(--radius-card);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: "Archivo", sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.email-form input[type="email"]:focus {
+  outline: none;
+  border-color: var(--hbf-cyan);
+  box-shadow: 0 0 0 2px rgba(45, 197, 231, 0.3);
+}
+
+.email-submit-btn {
+  padding: 14px;
+  border: 3px solid var(--hbf-black);
+  border-radius: var(--radius-pill);
+  background: var(--hbf-yellow);
+  color: var(--hbf-black);
+  font-family: "Archivo Black", "Archivo", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--hbf-black);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.email-submit-btn:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--hbf-black);
+}
+
+.email-submit-btn:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+
+.email-skip {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-tertiary);
+  font-family: "Archivo", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.email-skip:hover {
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   Responsive — Mobile slide-out sidebar
+   ============================================ */
+
+@media (max-width: 700px) {
+  .mobile-sidebar-toggle {
+    display: flex;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px;
+    min-width: 300px;
+    height: 100%;
+    z-index: 1200;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+    border-right: 3px solid var(--panel-border);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .map-area {
+    width: 100%;
+    height: 100%;
+  }
+
+  .upload-card {
+    padding: 28px 20px;
+    margin: 16px;
+  }
+
+  .upload-card h1 {
+    font-size: 1.75rem;
+  }
+
+  .toolbar {
+    top: 14px;
+    right: 14px;
+  }
+
+  /* Mobile export bar — always visible at bottom */
+  .mobile-export-bar {
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1100;
+    padding: 10px 14px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    background: var(--panel-bg);
+    border-top: 3px solid var(--panel-border);
+  }
+
+  .mobile-export-btn {
+    width: 100%;
+    padding: 12px;
+    border: 3px solid var(--hbf-black);
+    border-radius: var(--radius-pill);
+    background: var(--hbf-yellow);
+    color: var(--hbf-black);
+    font-family: "Archivo Black", "Archivo", sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--hbf-black);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .mobile-export-btn:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0 var(--hbf-black);
+  }
+
+  .mobile-export-btn:active {
+    transform: translate(3px, 3px);
+    box-shadow: none;
+  }
+
+  /* Push feed summary above the mobile export bar */
+  .feed-summary {
+    bottom: 62px;
+  }
+}
