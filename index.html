@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Feed Planner — Ride Nutrition Alerts</title>
+  <title>HBF Feed Plan</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -54,6 +54,14 @@
           </div>
         </div>
 
+        <div class="setting-group">
+          <label>Units</label>
+          <div class="strategy-options">
+            <button class="unit-btn" data-unit="km">Km</button>
+            <button class="unit-btn active" data-unit="mi">Miles</button>
+          </div>
+        </div>
+
         <h3>Nutrition</h3>
 
         <div class="setting-group">
@@ -77,24 +85,16 @@
         <div class="setting-group">
           <label>Est. Average Speed</label>
           <div class="input-row">
-            <input type="number" id="avg-speed" value="25" min="10" max="50" step="1" />
-            <span class="unit">km/h</span>
+            <input type="number" id="avg-speed" value="15" min="5" max="35" step="1" />
+            <span class="unit">mph</span>
           </div>
-          <input type="range" id="avg-speed-range" min="10" max="50" step="1" value="25" />
+          <input type="range" id="avg-speed-range" min="5" max="35" step="1" value="15" />
         </div>
 
         <h3>Fuel Sources</h3>
 
         <div class="setting-group">
-          <label>Drink Carbs (per serving)</label>
-          <div class="input-row">
-            <input type="number" id="drink-carbs" value="30" min="0" max="100" step="5" />
-            <span class="unit">g</span>
-          </div>
-        </div>
-
-        <div class="setting-group">
-          <label>Food Carbs (per serving)</label>
+          <label>Food Carbs (per item)</label>
           <div class="input-row">
             <input type="number" id="food-carbs" value="25" min="0" max="100" step="5" />
             <span class="unit">g</span>
@@ -102,12 +102,10 @@
         </div>
 
         <div class="setting-group">
-          <label>Feed Strategy</label>
-          <div class="strategy-options">
-            <button class="strategy-btn active" data-strategy="alternate">Alternate</button>
-            <button class="strategy-btn" data-strategy="drink-only">Drink</button>
-            <button class="strategy-btn" data-strategy="food-only">Food</button>
-            <button class="strategy-btn" data-strategy="custom">Custom</button>
+          <label>Bottle Carbs (full bottle)</label>
+          <div class="input-row">
+            <input type="number" id="bottle-carbs" value="60" min="0" max="200" step="5" />
+            <span class="unit">g</span>
           </div>
         </div>
 
@@ -133,15 +131,23 @@
             </div>
             <div class="summary-item">
               <span class="summary-value" id="sum-carbs-hr">0g</span>
-              <span class="summary-label">Carbs/hr Actual</span>
+              <span class="summary-label">Carbs/hr</span>
             </div>
             <div class="summary-item">
-              <span class="summary-value" id="sum-drinks">0</span>
-              <span class="summary-label">Drinks</span>
+              <span class="summary-value" id="sum-bottle-duration">—</span>
+              <span class="summary-label">Bottle Lasts</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-value" id="sum-bottles">0</span>
+              <span class="summary-label">Bottles</span>
             </div>
             <div class="summary-item">
               <span class="summary-value" id="sum-foods">0</span>
               <span class="summary-label">Foods</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-value" id="sum-sips">0</span>
+              <span class="summary-label">Sip Reminders</span>
             </div>
           </div>
         </div>
@@ -204,18 +210,18 @@
     <div class="email-modal-card">
       <h2>Download Your Feed Plan</h2>
       <p>Enter your email to receive your GPX file with nutrition alerts.</p>
-      <form id="email-form" class="email-form">
+      <form id="email-form" class="email-form" novalidate>
         <input type="email" id="email-input" placeholder="your@email.com" required autocomplete="email" />
-        <button type="submit" class="email-submit-btn">Download GPX</button>
+        <button type="submit" class="email-submit-btn" id="email-submit-btn" disabled>Download GPX</button>
       </form>
-      <button class="email-skip" id="email-skip">Skip, just download</button>
+      <!-- email is required, no skip option -->
     </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="js/gpx-parser.js"></script>
-  <script src="js/feed-planner.js"></script>
-  <script src="js/file-export.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/gpx-parser.js?v=6"></script>
+  <script src="js/feed-planner.js?v=6"></script>
+  <script src="js/file-export.js?v=6"></script>
+  <script src="js/app.js?v=6"></script>
 </body>
 </html>

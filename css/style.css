@@ -159,6 +159,9 @@ html, body {
 .sidebar-logo-img {
   height: 28px;
   width: auto;
+  background: #FFFFFF;
+  border-radius: 4px;
+  padding: 2px 6px;
 }
 
 .sidebar-logo {
@@ -347,7 +350,8 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .strategy-btn,
-.device-btn {
+.device-btn,
+.unit-btn {
   padding: 7px 10px;
   border: var(--border-width) solid var(--panel-border);
   border-radius: var(--radius-pill);
@@ -366,7 +370,8 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .strategy-btn:hover,
-.device-btn:hover {
+.device-btn:hover,
+.unit-btn:hover {
   transform: translate(1px, 1px);
   box-shadow: 1px 1px 0 var(--panel-border);
 }
@@ -381,6 +386,13 @@ input[type="range"]::-webkit-slider-thumb {
 .device-btn.active {
   background: var(--hbf-magenta);
   color: var(--hbf-white);
+  border-color: var(--hbf-black);
+  box-shadow: 2px 2px 0 var(--hbf-black);
+}
+
+.unit-btn.active {
+  background: var(--hbf-yellow);
+  color: var(--hbf-black);
   border-color: var(--hbf-black);
   box-shadow: 2px 2px 0 var(--hbf-black);
 }
@@ -559,7 +571,7 @@ input[type="range"]::-webkit-slider-thumb {
   max-width: 220px;
   height: auto;
   margin-bottom: 16px;
-  background: #000;
+  background: #FFFFFF;
   border-radius: 12px;
   padding: 16px;
 }
@@ -741,8 +753,17 @@ input[type="range"]::-webkit-slider-thumb {
   box-shadow: 2px 2px 0 var(--panel-border);
 }
 
-.feed-card.food {
+.feed-card.food,
+.feed-card.eat {
   border-left-color: var(--food-color);
+}
+
+.feed-card.bottle {
+  border-left-color: var(--hbf-magenta);
+}
+
+.feed-card.sip {
+  border-left-color: var(--drink-color);
 }
 
 .feed-card-km {
@@ -760,12 +781,16 @@ input[type="range"]::-webkit-slider-thumb {
   margin-top: 2px;
 }
 
-.feed-card-type.drink {
+.feed-card-type.sip {
   color: var(--drink-color);
 }
 
-.feed-card-type.food {
+.feed-card-type.eat {
   color: var(--food-color);
+}
+
+.feed-card-type.bottle {
+  color: var(--hbf-magenta);
 }
 
 .feed-card-note {
@@ -805,16 +830,22 @@ input[type="range"]::-webkit-slider-thumb {
   transform: scale(1.2);
 }
 
-.feed-marker.drink {
+.feed-marker.sip {
   background: var(--hbf-cyan);
   width: 30px;
   height: 30px;
 }
 
-.feed-marker.food {
+.feed-marker.eat {
   background: var(--hbf-yellow);
   width: 30px;
   height: 30px;
+}
+
+.feed-marker.bottle {
+  background: var(--hbf-magenta);
+  width: 34px;
+  height: 34px;
 }
 
 .feed-marker-label {
@@ -1149,25 +1180,13 @@ input[type="range"]::-webkit-slider-thumb {
   box-shadow: none;
 }
 
-.email-skip {
-  display: inline-block;
-  margin-top: 14px;
-  padding: 0;
-  border: none;
-  background: none;
-  color: var(--text-tertiary);
-  font-family: "Archivo", sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-decoration: underline;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
+.email-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 4px 4px 0 var(--hbf-black);
 }
 
-.email-skip:hover {
-  color: var(--text-secondary);
-}
 
 /* ============================================
    Responsive — Mobile slide-out sidebar

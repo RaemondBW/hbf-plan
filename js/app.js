@@ -21,10 +21,10 @@
     carbsPerHour: 60,
     feedIntervalMin: 20,
     avgSpeedKmh: 25,
-    drinkCarbs: 30,
     foodCarbs: 25,
-    strategy: "alternate",
+    bottleCarbs: 60,
     device: "garmin",
+    unit: "mi", // "km" or "mi"
   };
 
   // ==========================================
@@ -148,7 +148,11 @@
 
     $("#route-name").textContent = routeData.name;
     $("#route-distance").textContent = formatDistance(routeData.totalDistance);
-    $("#route-elevation").textContent = `↑ ${routeData.totalElevGain}m`;
+    if (settings.unit === "mi") {
+      $("#route-elevation").textContent = `↑ ${Math.round(routeData.totalElevGain * 3.28084)}ft`;
+    } else {
+      $("#route-elevation").textContent = `↑ ${routeData.totalElevGain}m`;
+    }
 
     drawRoute();
     recalculateFeeds();
@@ -198,6 +202,7 @@
 
   function recalculateFeeds() {
     if (!routeData) return;
+    readSettings();
 
     feedPoints = FeedPlanner.calculateFeedPoints(routeData, settings);
     renderFeedMarkers();
@@ -211,9 +216,10 @@
     feedMarkers = [];
 
     feedPoints.forEach((fp) => {
+      const emoji = fp.type === "sip" ? "💧" : fp.type === "eat" ? "🍫" : "🍼";
       const icon = L.divIcon({
         className: `feed-marker ${fp.type}`,
-        html: fp.type === "drink" ? "💧" : "🍫",
+        html: emoji,
         iconSize: [30, 30],
         iconAnchor: [15, 15],
       });
@@ -223,9 +229,11 @@
         draggable: true,
       }).addTo(map);
 
-      const km = (fp.distanceM / 1000).toFixed(1);
+      const distLabel = formatDistanceShort(fp.distanceM);
+      const typeLabel = fp.type === "sip" ? "Sip" : fp.type === "eat" ? "Eat" : "New Bottle";
+      const carbsLabel = fp.carbs > 0 ? ` — ${fp.carbs}g` : "";
       marker.bindTooltip(
-        `<strong>${fp.type === "drink" ? "Drink" : "Eat"}</strong> — ${fp.carbs}g<br>${km} km`,
+        `<strong>${typeLabel}</strong>${carbsLabel}<br>${distLabel}`,
         {
           direction: "top",
           offset: [0, -16],
@@ -268,13 +276,16 @@
 
     feedPoints.forEach((fp, idx) => {
       const card = document.createElement("div");
-      card.className = `feed-card ${fp.type === "food" ? "food" : ""}`;
+      card.className = `feed-card ${fp.type}`;
 
-      const km = (fp.distanceM / 1000).toFixed(1);
+      const distLabel = formatDistanceShort(fp.distanceM);
+      const emoji = fp.type === "sip" ? "💧" : fp.type === "eat" ? "🍫" : "🍼";
+      const typeLabel = fp.type === "sip" ? "Sip" : fp.type === "eat" ? "Eat" : "New Bottle";
+      const carbsLine = fp.carbs > 0 ? `<div class="feed-card-carbs">${fp.carbs}g</div>` : "";
       card.innerHTML = `
-        <div class="feed-card-km">${km} km</div>
-        <div class="feed-card-type ${fp.type}">${fp.type === "drink" ? "💧 Drink" : "🍫 Food"}</div>
-        <div class="feed-card-carbs">${fp.carbs}g carbs</div>
+        <div class="feed-card-km">${distLabel}</div>
+        <div class="feed-card-type ${fp.type}">${emoji} ${typeLabel}</div>
+        ${carbsLine}
       `;
 
       card.addEventListener("click", () => {
@@ -297,8 +308,22 @@
     const summary = FeedPlanner.calculateSummary(feedPoints, routeData, settings);
     $("#sum-total-carbs").textContent = `${summary.totalCarbs}g`;
     $("#sum-carbs-hr").textContent = `${summary.actualCarbsPerHour}g`;
-    $("#sum-drinks").textContent = summary.drinkFeeds;
-    $("#sum-foods").textContent = summary.foodFeeds;
+    $("#sum-foods").textContent = summary.eatFeeds;
+    $("#sum-sips").textContent = summary.sipFeeds;
+    $("#sum-bottles").textContent = summary.bottleFeeds;
+
+    if (isFinite(summary.bottleDurationH) && summary.bottleDurationH > 0) {
+      const mins = Math.round(summary.bottleDurationH * 60);
+      if (mins >= 60) {
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        $("#sum-bottle-duration").textContent = m > 0 ? `${h}h ${m}m` : `${h}h`;
+      } else {
+        $("#sum-bottle-duration").textContent = `${mins}m`;
+      }
+    } else {
+      $("#sum-bottle-duration").textContent = "∞";
+    }
   }
 
   function updateRouteStats() {
@@ -310,19 +335,22 @@
   // ==========================================
 
   function openFeedPopup(fp, marker) {
+    const emoji = fp.type === "sip" ? "💧" : fp.type === "eat" ? "🍫" : "🍼";
+    const typeLabel = fp.type === "sip" ? "Sip" : fp.type === "eat" ? "Eat" : "New Bottle";
     const popupContent = document.createElement("div");
     popupContent.innerHTML = `
-      <div class="popup-title">${fp.type === "drink" ? "💧 Drink" : "🍫 Food"} — ${(fp.distanceM / 1000).toFixed(1)} km</div>
+      <div class="popup-title">${emoji} ${typeLabel} — ${formatDistanceShort(fp.distanceM)}</div>
       <div class="popup-row">
         <label>Type</label>
         <div class="popup-type-btns">
-          <button class="popup-type-btn ${fp.type === "drink" ? "active" : ""}" data-type="drink">💧 Drink</button>
-          <button class="popup-type-btn ${fp.type === "food" ? "active" : ""}" data-type="food">🍫 Food</button>
+          <button class="popup-type-btn ${fp.type === "sip" ? "active" : ""}" data-type="sip">💧 Sip</button>
+          <button class="popup-type-btn ${fp.type === "eat" ? "active" : ""}" data-type="eat">🍫 Eat</button>
+          <button class="popup-type-btn ${fp.type === "bottle" ? "active" : ""}" data-type="bottle">🍼 Bottle</button>
         </div>
       </div>
       <div class="popup-row">
         <label>Note</label>
-        <input type="text" class="popup-note-input" value="${fp.note}" placeholder="e.g. Gel, Bottle..." />
+        <input type="text" class="popup-note-input" value="${fp.note}" placeholder="e.g. Gel, New bottle..." />
       </div>
       <div class="popup-actions">
         <button class="popup-delete">Delete</button>
@@ -349,11 +377,12 @@
 
       fp.type = newType;
       fp.note = newNote;
-      fp.carbs = newType === "drink" ? settings.drinkCarbs : settings.foodCarbs;
+      fp.carbs = newType === "eat" ? settings.foodCarbs : 0;
 
+      const newEmoji = newType === "sip" ? "💧" : newType === "eat" ? "🍫" : "🍼";
       const icon = L.divIcon({
         className: `feed-marker ${newType}`,
-        html: newType === "drink" ? "💧" : "🍫",
+        html: newEmoji,
         iconSize: [30, 30],
         iconAnchor: [15, 15],
       });
@@ -366,7 +395,7 @@
     });
 
     marker.bindPopup(popupContent, {
-      maxWidth: 240,
+      maxWidth: 260,
       className: "",
     }).openPopup();
   }
@@ -403,9 +432,9 @@
       lat: snappedCoord.lat,
       lon: snappedCoord.lon,
       elev: snappedCoord.elev,
-      type: "drink",
-      carbs: settings.drinkCarbs,
-      note: `Drink — ${settings.drinkCarbs}g carbs`,
+      type: "eat",
+      carbs: settings.foodCarbs,
+      note: `Eat — ${settings.foodCarbs}g carbs`,
     };
 
     feedPoints.push(newFeed);
@@ -479,9 +508,11 @@
   function readSettings() {
     settings.carbsPerHour = parseInt($("#carbs-per-hour").value) || 60;
     settings.feedIntervalMin = parseInt($("#feed-interval").value) || 20;
-    settings.avgSpeedKmh = parseInt($("#avg-speed").value) || 25;
-    settings.drinkCarbs = parseInt($("#drink-carbs").value) || 30;
+    const rawSpeed = parseInt($("#avg-speed").value) || 25;
+    // Convert mph to km/h for internal calculations
+    settings.avgSpeedKmh = settings.unit === "mi" ? rawSpeed * 1.60934 : rawSpeed;
     settings.foodCarbs = parseInt($("#food-carbs").value) || 25;
+    settings.bottleCarbs = parseInt($("#bottle-carbs").value) || 60;
   }
 
   function initSettings() {
@@ -490,19 +521,9 @@
     syncInputRangeLive("feed-interval", "feed-interval-range");
     syncInputRangeLive("avg-speed", "avg-speed-range");
 
-    // Drink/food carb inputs — live update
-    $("#drink-carbs").addEventListener("input", onSettingChange);
+    // Food/bottle carb inputs — live update
     $("#food-carbs").addEventListener("input", onSettingChange);
-
-    // Strategy buttons — live update
-    $$(".strategy-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        $$(".strategy-btn").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        settings.strategy = btn.dataset.strategy;
-        recalculateFeeds();
-      });
-    });
+    $("#bottle-carbs").addEventListener("input", onSettingChange);
 
     // Device buttons
     $$(".device-btn").forEach((btn) => {
@@ -512,6 +533,53 @@
         settings.device = btn.dataset.device;
       });
     });
+
+    // Unit toggle (km / mi)
+    $$(".unit-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const prevUnit = settings.unit;
+        $$(".unit-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        settings.unit = btn.dataset.unit;
+
+        // Convert speed value between units
+        const speedInput = $("#avg-speed");
+        const speedRange = $("#avg-speed-range");
+        const rawSpeed = parseFloat(speedInput.value) || 15;
+        let converted;
+        if (prevUnit === "km" && settings.unit === "mi") {
+          converted = Math.round(rawSpeed / 1.60934);
+        } else if (prevUnit === "mi" && settings.unit === "km") {
+          converted = Math.round(rawSpeed * 1.60934);
+        } else {
+          converted = rawSpeed;
+        }
+        speedInput.value = converted;
+        speedRange.value = converted;
+
+        updateSpeedLabel();
+        if (routeData) {
+          onRouteLoaded();
+        }
+      });
+    });
+    updateSpeedLabel();
+  }
+
+  function updateSpeedLabel() {
+    const speedInput = $("#avg-speed");
+    const speedRange = $("#avg-speed-range");
+    if (!speedInput) return;
+    const speedUnit = speedInput.closest(".setting-group").querySelector(".unit");
+    if (speedUnit) speedUnit.textContent = settings.unit === "mi" ? "mph" : "km/h";
+
+    if (settings.unit === "mi") {
+      speedInput.min = 5; speedInput.max = 35;
+      speedRange.min = 5; speedRange.max = 35;
+    } else {
+      speedInput.min = 10; speedInput.max = 50;
+      speedRange.min = 10; speedRange.max = 50;
+    }
   }
 
   function syncInputRangeLive(inputId, rangeId) {
@@ -555,34 +623,41 @@
     setTimeout(() => $("#email-input").focus(), 100);
   }
 
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
   function initEmailCapture() {
     const modal = $("#email-modal");
     const form = $("#email-form");
-    const skipBtn = $("#email-skip");
+    const emailInput = $("#email-input");
+    const submitBtn = $("#email-submit-btn");
 
-    // Submit with email
+    // Stop input events from bubbling to prevent interfering with app
+    emailInput.addEventListener("input", (e) => {
+      e.stopPropagation();
+      submitBtn.disabled = !isValidEmail(emailInput.value.trim());
+    });
+    emailInput.addEventListener("keydown", (e) => e.stopPropagation());
+    emailInput.addEventListener("keyup", (e) => e.stopPropagation());
+
+    // Submit with email (required, validated)
     form.addEventListener("submit", (e) => {
       e.preventDefault();
-      const email = $("#email-input").value.trim();
-      if (email) {
-        storeEmail(email);
-      }
+      const email = emailInput.value.trim();
+      if (!isValidEmail(email)) return;
+      storeEmail(email);
       modal.classList.add("hidden");
-      $("#email-input").value = "";
+      emailInput.value = "";
+      submitBtn.disabled = true;
       doExport();
     });
 
-    // Skip — download without email
-    skipBtn.addEventListener("click", () => {
-      modal.classList.add("hidden");
-      $("#email-input").value = "";
-      doExport();
-    });
-
-    // Close on backdrop click
+    // Close on backdrop click (no download)
     modal.querySelector(".email-modal-backdrop").addEventListener("click", () => {
       modal.classList.add("hidden");
-      $("#email-input").value = "";
+      emailInput.value = "";
+      submitBtn.disabled = true;
     });
   }
 
@@ -607,10 +682,20 @@
   // ==========================================
 
   function formatDistance(meters) {
-    if (meters >= 1000) {
-      return `${(meters / 1000).toFixed(1)} km`;
+    if (settings.unit === "mi") {
+      const miles = meters / 1609.344;
+      if (miles >= 1) return `${miles.toFixed(1)} mi`;
+      return `${(miles * 5280).toFixed(0)} ft`;
     }
+    if (meters >= 1000) return `${(meters / 1000).toFixed(1)} km`;
     return `${Math.round(meters)} m`;
+  }
+
+  function formatDistanceShort(meters) {
+    if (settings.unit === "mi") {
+      return `${(meters / 1609.344).toFixed(1)} mi`;
+    }
+    return `${(meters / 1000).toFixed(1)} km`;
   }
 
   // ==========================================

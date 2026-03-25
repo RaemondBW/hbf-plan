@@ -1,45 +1,55 @@
 /**
  * Feed Planner — calculates nutrition feed points along a route.
+ *
+ * Feed point types:
+ *   "sip"    — reminder to sip from bottle
+ *   "eat"    — reminder to eat a food item
+ *   "bottle" — bottle is empty, grab a new one
  */
 
 const FeedPlanner = (() => {
   /**
    * Calculate feed points based on settings and route data.
    *
-   * @param {RouteData} route - Parsed route data with coords and distances
-   * @param {Object} settings
-   * @param {number} settings.carbsPerHour - Target carbs per hour (g)
-   * @param {number} settings.feedIntervalMin - Feed interval in minutes
-   * @param {number} settings.avgSpeedKmh - Estimated average speed (km/h)
-   * @param {number} settings.drinkCarbs - Carbs per drink serving (g)
-   * @param {number} settings.foodCarbs - Carbs per food serving (g)
-   * @param {string} settings.strategy - "alternate" | "drink-only" | "food-only" | "custom"
-   * @returns {FeedPoint[]}
+   * Model:
+   *  - Feed interval determines when eat + sip reminders appear.
+   *  - Every other feed interval is an "eat", the rest are "sip".
+   *  - Food carbs per item is known; remainder of target comes from sipping.
+   *  - Bottle duration is calculated from sip rate and bottle carbs.
+   *  - "bottle" markers are placed where a bottle runs out.
    */
   function calculateFeedPoints(route, settings) {
     const {
       carbsPerHour,
       feedIntervalMin,
       avgSpeedKmh,
-      drinkCarbs,
       foodCarbs,
-      strategy,
+      bottleCarbs,
     } = settings;
 
-    const totalDistM = route.totalDistance; // meters
-    const avgSpeedMs = (avgSpeedKmh * 1000) / 3600; // m/s
-    const feedIntervalS = feedIntervalMin * 60; // seconds
+    const totalDistM = route.totalDistance;
+    const avgSpeedMs = (avgSpeedKmh * 1000) / 3600;
+    const feedIntervalS = feedIntervalMin * 60;
     const feedIntervalM = avgSpeedMs * feedIntervalS; // meters between feeds
 
-    // How many feeds needed?
-    const totalTimeH = totalDistM / 1000 / avgSpeedKmh; // hours
     const feedCount = Math.max(1, Math.floor(totalDistM / feedIntervalM));
 
-    // Carbs per feed to meet target
+    // Calculate food contribution per hour
     const feedsPerHour = 60 / feedIntervalMin;
-    const carbsPerFeed = carbsPerHour / feedsPerHour;
+    const eatFeedsPerHour = feedsPerHour / 2; // every other interval is eat
+    const foodCarbsPerHour = eatFeedsPerHour * foodCarbs;
+
+    // Remainder comes from sipping
+    const sipCarbsPerHour = Math.max(0, carbsPerHour - foodCarbsPerHour);
+
+    // How long does a bottle last?
+    const bottleDurationH = sipCarbsPerHour > 0
+      ? bottleCarbs / sipCarbsPerHour
+      : Infinity;
+    const bottleDurationM = bottleDurationH * avgSpeedKmh * 1000; // meters
 
     const feedPoints = [];
+    let eatCounter = 0;
 
     for (let i = 1; i <= feedCount; i++) {
       const dist = feedIntervalM * i;
@@ -50,18 +60,13 @@ const FeedPlanner = (() => {
       const coord = RouteParser.coordAtDistance(route.coords, dist);
       if (!coord) continue;
 
-      let type;
-      if (strategy === "drink-only") {
-        type = "drink";
-      } else if (strategy === "food-only") {
-        type = "food";
-      } else {
-        // alternate: odd = drink, even = food
-        type = i % 2 === 1 ? "drink" : "food";
-      }
-
-      const carbs = type === "drink" ? drinkCarbs : foodCarbs;
-      const note = type === "drink" ? `Drink — ${carbs}g carbs` : `Eat — ${carbs}g carbs`;
+      // Alternate: odd intervals = sip, even intervals = eat
+      const isEat = i % 2 === 0;
+      const type = isEat ? "eat" : "sip";
+      const carbs = isEat ? foodCarbs : Math.round(sipCarbsPerHour / feedsPerHour * 2);
+      const label = isEat
+        ? `Eat — ${foodCarbs}g carbs`
+        : `Sip — ~${carbs}g`;
 
       feedPoints.push({
         id: `feed-${i}`,
@@ -72,9 +77,37 @@ const FeedPlanner = (() => {
         elev: coord.elev,
         type,
         carbs,
-        note,
+        note: label,
       });
     }
+
+    // Add "new bottle" markers based on bottle duration
+    if (bottleDurationM < totalDistM && bottleDurationM > 0 && isFinite(bottleDurationM)) {
+      let bottleDist = bottleDurationM;
+      let bottleNum = 1;
+
+      while (bottleDist < totalDistM - 2000) {
+        const coord = RouteParser.coordAtDistance(route.coords, bottleDist);
+        if (coord) {
+          feedPoints.push({
+            id: `bottle-${bottleNum}`,
+            index: 1000 + bottleNum,
+            distanceM: bottleDist,
+            lat: coord.lat,
+            lon: coord.lon,
+            elev: coord.elev,
+            type: "bottle",
+            carbs: 0,
+            note: `New Bottle #${bottleNum + 1}`,
+          });
+        }
+        bottleDist += bottleDurationM;
+        bottleNum++;
+      }
+    }
+
+    // Sort all points by distance
+    feedPoints.sort((a, b) => a.distanceM - b.distanceM);
 
     return feedPoints;
   }
@@ -83,19 +116,33 @@ const FeedPlanner = (() => {
    * Calculate nutrition summary from feed points.
    */
   function calculateSummary(feedPoints, route, settings) {
-    const totalCarbs = feedPoints.reduce((sum, fp) => sum + fp.carbs, 0);
     const totalTimeH = route.totalDistance / 1000 / settings.avgSpeedKmh;
-    const actualCarbsPerHour = totalTimeH > 0 ? totalCarbs / totalTimeH : 0;
-    const drinkFeeds = feedPoints.filter((fp) => fp.type === "drink").length;
-    const foodFeeds = feedPoints.filter((fp) => fp.type === "food").length;
+
+    const eatFeedsPerHour = (60 / settings.feedIntervalMin) / 2;
+    const foodCarbsPerHour = eatFeedsPerHour * settings.foodCarbs;
+    const sipCarbsPerHour = Math.max(0, settings.carbsPerHour - foodCarbsPerHour);
+
+    const bottleDurationH = sipCarbsPerHour > 0
+      ? settings.bottleCarbs / sipCarbsPerHour
+      : Infinity;
+
+    const totalCarbs = Math.round(settings.carbsPerHour * totalTimeH);
+    const actualCarbsPerHour = settings.carbsPerHour;
+
+    const eatFeeds = feedPoints.filter(fp => fp.type === "eat").length;
+    const sipFeeds = feedPoints.filter(fp => fp.type === "sip").length;
+    const bottleFeeds = feedPoints.filter(fp => fp.type === "bottle").length;
+    const totalBottles = bottleFeeds + 1; // includes the starting bottle
 
     return {
       totalFeeds: feedPoints.length,
-      totalCarbs: Math.round(totalCarbs),
-      actualCarbsPerHour: Math.round(actualCarbsPerHour),
+      totalCarbs,
+      actualCarbsPerHour,
       estimatedTimeH: totalTimeH,
-      drinkFeeds,
-      foodFeeds,
+      eatFeeds,
+      sipFeeds,
+      bottleFeeds: totalBottles,
+      bottleDurationH,
     };
   }
 
