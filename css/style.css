@@ -1130,6 +1130,26 @@ input[type="range"]::-webkit-slider-thumb {
   line-height: 1.4;
 }
 
+.modal-device-group {
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.modal-device-group label {
+  display: block;
+  font-family: "Archivo Black", "Archivo", sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.modal-device-group .strategy-options {
+  justify-content: center;
+}
+
 .email-form {
   display: flex;
   flex-direction: column;

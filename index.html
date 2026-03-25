@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="icon" type="image/png" href="img/favicon.png" />
-  <link rel="stylesheet" href="css/style.css?v=6" />
+  <link rel="stylesheet" href="css/style.css?v=7" />
 </head>
 <body>
   <!-- Upload overlay (shown when no route loaded) -->
@@ -110,18 +110,6 @@
           </div>
         </div>
 
-        <h3>Export</h3>
-
-        <div class="setting-group">
-          <label>Device</label>
-          <div class="strategy-options">
-            <button class="device-btn active" data-device="garmin">Garmin</button>
-            <button class="device-btn" data-device="wahoo">Wahoo</button>
-            <button class="device-btn" data-device="hammerhead">Hammerhead</button>
-            <button class="device-btn" data-device="coros">Coros</button>
-          </div>
-        </div>
-
         <!-- Nutrition summary -->
         <div id="nutrition-summary" class="nutrition-summary hidden">
           <h3>Summary</h3>
@@ -210,7 +198,16 @@
     <div class="email-modal-backdrop"></div>
     <div class="email-modal-card">
       <h2>Download Your Feed Plan</h2>
-      <p>Enter your email to receive your GPX file with nutrition alerts.</p>
+      <p>Select your GPS device and enter your email to download.</p>
+      <div class="modal-device-group">
+        <label>GPS Device</label>
+        <div class="strategy-options">
+          <button class="device-btn active" data-device="garmin">Garmin</button>
+          <button class="device-btn" data-device="wahoo">Wahoo</button>
+          <button class="device-btn" data-device="hammerhead">Hammerhead</button>
+          <button class="device-btn" data-device="coros">Coros</button>
+        </div>
+      </div>
       <form id="email-form" class="email-form" novalidate>
         <input type="email" id="email-input" placeholder="your@email.com" required autocomplete="email" />
         <button type="submit" class="email-submit-btn" id="email-submit-btn" disabled>Download GPX</button>
@@ -220,9 +217,9 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="js/gpx-parser.js?v=6"></script>
-  <script src="js/feed-planner.js?v=6"></script>
-  <script src="js/file-export.js?v=6"></script>
-  <script src="js/app.js?v=6"></script>
+  <script src="js/gpx-parser.js?v=7"></script>
+  <script src="js/feed-planner.js?v=7"></script>
+  <script src="js/file-export.js?v=7"></script>
+  <script src="js/app.js?v=7"></script>
 </body>
 </html>
