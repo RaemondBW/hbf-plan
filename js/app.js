@@ -662,13 +662,43 @@
   }
 
   function storeEmail(email) {
-    // Store locally — in production you'd POST to an API
-    const emails = JSON.parse(localStorage.getItem("feed-planner-emails") || "[]");
-    if (!emails.includes(email)) {
-      emails.push(email);
-      localStorage.setItem("feed-planner-emails", JSON.stringify(emails));
-    }
-    console.log("Email captured:", email);
+    // Subscribe to Klaviyo list
+    fetch("https://a.klaviyo.com/client/subscriptions/?company_id=U66Fgc", {
+      method: "POST",
+      headers: {
+        "content-type": "application/vnd.api+json",
+        "revision": "2025-01-15",
+      },
+      body: JSON.stringify({
+        data: {
+          type: "subscription",
+          attributes: {
+            custom_source: "HBF Feed Planner",
+            profile: {
+              data: {
+                type: "profile",
+                attributes: {
+                  email,
+                  subscriptions: {
+                    email: {
+                      marketing: {
+                        consent: "SUBSCRIBED",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          relationships: {
+            list: {
+              data: { type: "list", id: "VCtv7H" },
+            },
+          },
+        },
+      }),
+    })
+      .catch(() => {});
   }
 
   function doExport() {
