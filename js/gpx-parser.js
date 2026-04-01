@@ -43,6 +43,32 @@ const RouteParser = (() => {
     const nameEl = doc.querySelector("trk > name") || doc.querySelector("rte > name") || doc.querySelector("metadata > name");
     const name = nameEl ? nameEl.textContent.trim() : fileName.replace(/\.gpx$/i, "");
 
+    // Preserve existing waypoints (turn-by-turn cues, POIs, etc.)
+    const waypoints = [];
+    for (const wpt of doc.querySelectorAll("gpx > wpt")) {
+      const lat = parseFloat(wpt.getAttribute("lat"));
+      const lon = parseFloat(wpt.getAttribute("lon"));
+      if (isNaN(lat) || isNaN(lon)) continue;
+
+      const eleEl = wpt.querySelector("ele");
+      const nameWpt = wpt.querySelector("name");
+      const typeEl = wpt.querySelector("type");
+      const symEl = wpt.querySelector("sym");
+      const cmtEl = wpt.querySelector("cmt");
+      const descEl = wpt.querySelector("desc");
+
+      waypoints.push({
+        lat,
+        lon,
+        elev: eleEl ? parseFloat(eleEl.textContent) : null,
+        name: nameWpt ? nameWpt.textContent.trim() : "",
+        type: typeEl ? typeEl.textContent.trim() : "",
+        sym: symEl ? symEl.textContent.trim() : "",
+        cmt: cmtEl ? cmtEl.textContent.trim() : "",
+        desc: descEl ? descEl.textContent.trim() : "",
+      });
+    }
+
     const coords = [];
     let totalElevGain = 0;
     let totalElevLoss = 0;
@@ -74,6 +100,7 @@ const RouteParser = (() => {
     return {
       name,
       coords,
+      waypoints,
       totalDistance,
       totalElevGain: Math.round(totalElevGain),
       totalElevLoss: Math.round(totalElevLoss),
