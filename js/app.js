@@ -642,24 +642,30 @@
     emailInput.addEventListener("keydown", (e) => e.stopPropagation());
     emailInput.addEventListener("keyup", (e) => e.stopPropagation());
 
+    const emailCard = modal.querySelector(".email-modal-card:not(.post-download-card)");
+    const postCard = $("#post-download-card");
+
+    function closeModal() {
+      modal.classList.add("hidden");
+      emailCard.classList.remove("hidden");
+      postCard.classList.add("hidden");
+      emailInput.value = "";
+      submitBtn.disabled = true;
+    }
+
     // Submit with email (required, validated)
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       const email = emailInput.value.trim();
       if (!isValidEmail(email)) return;
       storeEmail(email);
-      modal.classList.add("hidden");
-      emailInput.value = "";
-      submitBtn.disabled = true;
       doExport();
+      emailCard.classList.add("hidden");
+      postCard.classList.remove("hidden");
     });
 
-    // Close on backdrop click (no download)
-    modal.querySelector(".email-modal-backdrop").addEventListener("click", () => {
-      modal.classList.add("hidden");
-      emailInput.value = "";
-      submitBtn.disabled = true;
-    });
+    // Close on backdrop click
+    modal.querySelector(".email-modal-backdrop").addEventListener("click", closeModal);
   }
 
   function storeEmail(email) {

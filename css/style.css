@@ -649,6 +649,20 @@ input[type="range"]::-webkit-slider-thumb {
   letter-spacing: 0.5px;
 }
 
+.shop-fuel-link {
+  display: inline-block;
+  margin-top: 36px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-decoration: none;
+  letter-spacing: 0.3px;
+}
+
+.shop-fuel-link:hover {
+  text-decoration: underline;
+}
+
 /* ============================================
    Map Toolbar (over map)
    ============================================ */
@@ -1207,6 +1221,46 @@ input[type="range"]::-webkit-slider-thumb {
   box-shadow: 4px 4px 0 var(--hbf-black);
 }
 
+.post-download-card.hidden,
+.email-modal-card.hidden {
+  display: none;
+}
+
+.post-download-card {
+  text-align: center;
+}
+
+.post-download-card p {
+  margin-bottom: 24px;
+}
+
+.shop-now-btn {
+  display: inline-block;
+  padding: 14px 32px;
+  border: 3px solid var(--hbf-black);
+  border-radius: var(--radius-pill);
+  background: var(--hbf-yellow);
+  color: var(--hbf-black);
+  font-family: "Archivo Black", "Archivo", sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--hbf-black);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.shop-now-btn:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--hbf-black);
+}
+
+.shop-now-btn:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
 
 /* ============================================
    Responsive — Mobile slide-out sidebar
