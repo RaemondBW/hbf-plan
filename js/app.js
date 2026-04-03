@@ -227,6 +227,7 @@
       const marker = L.marker([fp.lat, fp.lon], {
         icon,
         draggable: true,
+        bubblingMouseEvents: false,
       }).addTo(map);
 
       const distLabel = formatDistanceShort(fp.distanceM);
