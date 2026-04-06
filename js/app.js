@@ -200,6 +200,75 @@
   // Feed Points
   // ==========================================
 
+  /**
+   * After editing a feed point, figure out how far its carbs cover at
+   * the target rate and remove any sip/eat feeds within that window.
+   * Then re-generate feeds from the resume point to the end of the route.
+   */
+  function recalculateFromEdit(editedFp) {
+    const metersPerHour = settings.avgSpeedKmh * 1000;
+    const coverageHours = editedFp.carbs / settings.carbsPerHour;
+    const coverageMeters = coverageHours * metersPerHour;
+    const resumeDistance = editedFp.distanceM + coverageMeters;
+
+    // Find the default carbs values for regenerated feeds
+    const feedsPerHour = 60 / settings.feedIntervalMin;
+    const eatFeedsPerHour = feedsPerHour / 2;
+    const foodCarbsPerHour = eatFeedsPerHour * settings.foodCarbs;
+    const sipCarbsPerHour = Math.max(0, settings.carbsPerHour - foodCarbsPerHour);
+    const defaultSipCarbs = Math.round(sipCarbsPerHour / feedsPerHour * 2);
+
+    const avgSpeedMs = (settings.avgSpeedKmh * 1000) / 3600;
+    const feedIntervalM = avgSpeedMs * settings.feedIntervalMin * 60;
+    const totalDistM = routeData.totalDistance;
+
+    // Remove all sip/eat points after the edited one
+    const editedIdx = feedPoints.indexOf(editedFp);
+    const kept = feedPoints.filter((fp, i) =>
+      i <= editedIdx || fp.type === "bottle"
+    );
+
+    // Re-generate feeds from the resume distance to end of route
+    // Snap to the next feed-interval boundary after resumeDistance
+    let dist = Math.ceil(resumeDistance / feedIntervalM) * feedIntervalM;
+    let counter = 0;
+
+    while (dist < totalDistM - 2000) {
+      counter++;
+      const coord = RouteParser.coordAtDistance(routeData.coords, dist);
+      if (coord) {
+        const isEat = counter % 2 === 0;
+        const type = isEat ? "eat" : "sip";
+        const carbs = isEat ? settings.foodCarbs : defaultSipCarbs;
+        kept.push({
+          id: `feed-regen-${Date.now()}-${counter}`,
+          index: 1,
+          distanceM: dist,
+          lat: coord.lat,
+          lon: coord.lon,
+          elev: coord.elev,
+          type,
+          carbs,
+          note: buildFeedNote(type, carbs),
+        });
+      }
+      dist += feedIntervalM;
+    }
+
+    kept.sort((a, b) => a.distanceM - b.distanceM);
+    feedPoints = kept;
+    renderFeedMarkers();
+    renderFeedSummary();
+    updateNutritionSummary();
+    updateRouteStats();
+  }
+
+  function buildFeedNote(type, carbs) {
+    if (type === "eat") return `Eat — ${carbs}g carbs`;
+    if (type === "sip") return `Sip — ~${carbs}g`;
+    return "New Bottle";
+  }
+
   function recalculateFeeds() {
     if (!routeData) return;
     readSettings();
@@ -339,6 +408,19 @@
     const emoji = fp.type === "sip" ? "💧" : fp.type === "eat" ? "🍫" : "🍼";
     const typeLabel = fp.type === "sip" ? "Sip" : fp.type === "eat" ? "Eat" : "New Bottle";
     const popupContent = document.createElement("div");
+    // Default carbs when switching types
+    const defaultCarbsForType = (type) => {
+      if (type === "eat") return settings.foodCarbs;
+      if (type === "sip") {
+        const feedsPerHour = 60 / settings.feedIntervalMin;
+        const eatFeedsPerHour = feedsPerHour / 2;
+        const foodCarbsPerHour = eatFeedsPerHour * settings.foodCarbs;
+        const sipCarbsPerHour = Math.max(0, settings.carbsPerHour - foodCarbsPerHour);
+        return Math.round(sipCarbsPerHour / feedsPerHour * 2);
+      }
+      return 0;
+    };
+
     popupContent.innerHTML = `
       <div class="popup-title">${emoji} ${typeLabel} — ${formatDistanceShort(fp.distanceM)}</div>
       <div class="popup-row">
@@ -349,9 +431,9 @@
           <button class="popup-type-btn ${fp.type === "bottle" ? "active" : ""}" data-type="bottle">🍼 Bottle</button>
         </div>
       </div>
-      <div class="popup-row">
-        <label>Note</label>
-        <input type="text" class="popup-note-input" value="${fp.note}" placeholder="e.g. Gel, New bottle..." />
+      <div class="popup-row popup-carbs-row ${fp.type === "bottle" ? "hidden" : ""}">
+        <label>Carbs (g)</label>
+        <input type="number" class="popup-carbs-input" value="${fp.carbs}" min="0" max="999" step="1" />
       </div>
       <div class="popup-actions">
         <button class="popup-delete">Delete</button>
@@ -359,10 +441,21 @@
       </div>
     `;
 
+    const carbsInput = popupContent.querySelector(".popup-carbs-input");
+    const carbsRow = popupContent.querySelector(".popup-carbs-row");
+
     popupContent.querySelectorAll(".popup-type-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         popupContent.querySelectorAll(".popup-type-btn").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
+        const type = btn.dataset.type;
+        if (type === "bottle") {
+          carbsRow.classList.add("hidden");
+          carbsInput.value = 0;
+        } else {
+          carbsRow.classList.remove("hidden");
+          carbsInput.value = defaultCarbsForType(type);
+        }
       });
     });
 
@@ -374,27 +467,17 @@
     popupContent.querySelector(".popup-save").addEventListener("click", () => {
       const activeType = popupContent.querySelector(".popup-type-btn.active");
       const newType = activeType ? activeType.dataset.type : fp.type;
-      const newNote = popupContent.querySelector(".popup-note-input").value;
+      const newCarbs = parseInt(popupContent.querySelector(".popup-carbs-input").value, 10) || 0;
 
       fp.type = newType;
-      fp.note = newNote;
-      fp.carbs = newType === "eat" ? settings.foodCarbs : 0;
-
-      const newEmoji = newType === "sip" ? "💧" : newType === "eat" ? "🍫" : "🍼";
-      const icon = L.divIcon({
-        className: `feed-marker ${newType}`,
-        html: newEmoji,
-        iconSize: [30, 30],
-        iconAnchor: [15, 15],
-      });
-      marker.setIcon(icon);
+      fp.carbs = newType === "bottle" ? 0 : newCarbs;
+      fp.note = buildFeedNote(newType, fp.carbs);
 
       marker.closePopup();
-      renderFeedSummary();
-      updateNutritionSummary();
-      updateRouteStats();
+      recalculateFromEdit(fp);
     });
 
+    marker.unbindPopup();
     marker.bindPopup(popupContent, {
       maxWidth: 260,
       className: "",

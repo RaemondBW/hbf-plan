@@ -126,8 +126,9 @@ const FeedPlanner = (() => {
       ? settings.bottleCarbs / sipCarbsPerHour
       : Infinity;
 
-    const totalCarbs = Math.round(settings.carbsPerHour * totalTimeH);
-    const actualCarbsPerHour = settings.carbsPerHour;
+    // Sum actual carbs from feed points (respects manual edits)
+    const totalCarbs = feedPoints.reduce((sum, fp) => sum + (fp.carbs || 0), 0);
+    const actualCarbsPerHour = totalTimeH > 0 ? Math.round(totalCarbs / totalTimeH) : 0;
 
     const eatFeeds = feedPoints.filter(fp => fp.type === "eat").length;
     const sipFeeds = feedPoints.filter(fp => fp.type === "sip").length;

@@ -969,7 +969,8 @@ input[type="range"]::-webkit-slider-thumb {
   margin-bottom: 5px;
 }
 
-.popup-row input[type="text"] {
+.popup-row input[type="text"],
+.popup-row input[type="number"] {
   width: 100%;
   padding: 8px 10px;
   border: var(--border-width) solid var(--panel-border);
@@ -981,9 +982,14 @@ input[type="range"]::-webkit-slider-thumb {
   font-weight: 500;
 }
 
-.popup-row input[type="text"]:focus {
+.popup-row input[type="text"]:focus,
+.popup-row input[type="number"]:focus {
   outline: none;
   border-color: var(--hbf-cyan);
+}
+
+.popup-carbs-row.hidden {
+  display: none;
 }
 
 .popup-actions {
@@ -1215,6 +1221,13 @@ input[type="range"]::-webkit-slider-thumb {
   outline: none;
   border-color: var(--hbf-cyan);
   box-shadow: 0 0 0 2px rgba(45, 197, 231, 0.3);
+}
+
+.email-consent-notice {
+  font-size: 0.6875rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin: 0 0 4px 0;
 }
 
 .email-submit-btn {
