@@ -9,6 +9,7 @@
   // ==========================================
 
   let map;
+  let tileLight, tileDark;
   let routeData = null;
   let routeLine = null;
   let feedPoints = [];
@@ -53,10 +54,18 @@
       attributionControl: false,
     });
 
-    L.tileLayer(
+    tileLight = L.tileLayer(
       "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
       { maxZoom: 19 }
-    ).addTo(map);
+    );
+    tileDark = L.tileLayer(
+      "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      { maxZoom: 19 }
+    );
+
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark" ||
+      (!document.documentElement.getAttribute("data-theme") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    (isDark ? tileDark : tileLight).addTo(map);
 
     map.setView([48.8, 2.35], 5);
     map.on("click", onMapClick);
@@ -82,6 +91,13 @@
       document.documentElement.setAttribute("data-theme", next);
       localStorage.setItem("feed-planner-theme", next);
       updateThemeIcon(next);
+      if (next === "dark") {
+        map.removeLayer(tileLight);
+        tileDark.addTo(map);
+      } else {
+        map.removeLayer(tileDark);
+        tileLight.addTo(map);
+      }
     });
   }
 
